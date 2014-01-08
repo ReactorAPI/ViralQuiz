@@ -26,8 +26,6 @@ class TwitterController extends AppController {
 
     public function callback() {
 
-        		// $this->loadModel('User');
-
                 $requestToken = $this->Session->read('twitter_request_token');
                 $client = $this->createClient();
                 $accessToken = $client->getAccessToken('https://api.twitter.com/oauth/access_token', $requestToken);
@@ -41,11 +39,6 @@ class TwitterController extends AppController {
                 $this->Session->write('twitter_userid', $user_data['id']);
 
                 $user_data_json = json_encode($user_data);
-                
-                // debug($user_data_json);
-                // debug($user_data);
-                // debug($accessToken);
-                // exit;
 
                 $user = $this->User->find('first', array(
                         'conditions' => array(
@@ -54,6 +47,7 @@ class TwitterController extends AppController {
                 ));
 
                 if ( count($user) > 0 ) {
+
                         $this->User->id = $user['User']['id'];
                         if ( $user['User']['twitter_oauth'] != $accessToken->key ) {
                                 if(!$this->User->saveField('twitter_oauth', $accessToken->key))
@@ -69,6 +63,14 @@ class TwitterController extends AppController {
                         }
                         if ( $user['User']['json_data'] != $user_data_json ) {
                         		if(!$this->User->saveField('json_data', $user_data_json))
+                        			$this->Session->setFlash(__('<strong>Ocurri&oacute; un error inesperado.</strong>'));
+                        }
+                        if ( $user['User']['name'] != $user_data['name'] ) {
+                        		if(!$this->User->saveField('name', $user_data['name']))
+                        			$this->Session->setFlash(__('<strong>Ocurri&oacute; un error inesperado.</strong>'));
+                        }
+                        if ( $user['User']['username'] != $user_data['screen_name'] ) {
+                        		if(!$this->User->saveField('username', $user_data['screen_name']))
                         			$this->Session->setFlash(__('<strong>Ocurri&oacute; un error inesperado.</strong>'));
                         }
 
